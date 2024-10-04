@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Library</title>
+</head>
+<style>
+    /* Global Styles */
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f3f4f6;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        animation: fadeInDown 1s ease-out;
+    }
+
+    .search-container {
+        margin-top: 10px;
+    }
+
+    #search {
+        padding: 12px;
+        width: 100%;
+        max-width: 450px;
+        border: none;
+        border-radius: 30px;
+        background-color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+    }
+
+    #search:focus {
+        outline: none;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    section {
+        margin-bottom: 40px;
+        animation: fadeInUp 1s ease-out;
+    }
+
+    .add-book form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+    }
+
+
+
+    .add-book form input,
+    .add-book form select,
+    .add-book form button {
+        padding: 12px;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .add-book form input,
+    .add-book form select {
+        background-color: #f1f1f1;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .add-book form button {
+        background-color: #2980b9;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+
+
+    .book-list,
+    .borrowing-history {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1s ease;
+    }
+
+    .book-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #e0e0e0;
+        transition: background-color 0.3s ease;
+    }
+
+    .book-item:hover {
+        background-color: #f7f9fa;
+    }
+
+    .book-item:last-child {
+        border-bottom: none;
+    }
+
+    .book-item .details {
+        flex: 1;
+        margin-left: 20px;
+        color: #2c3e50;
+    }
+
+    .borrow-button {
+        padding: 10px 15px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .borrow-button:hover {
+        background-color: #219150;
+        transform: scale(1.05);
+    }
+
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        header h1 {
+            font-size: 2rem;
+        }
+
+        #search {
+            max-width: 100%;
+        }
+
+        .add-book form {
+            padding: 15px;
+        }
+
+        .borrow-button {
+            padding: 8px 12px;
+        }
+    }
+
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        width: 60%;
+        max-width: 500px;
+        margin: auto;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Modal Styling */
+    .modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 999;
+        /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        background-color: rgba(0, 0, 0, 0.8);
+        /* Black background with opacity */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.5s ease;
+        /* Smooth fade-in animation */
+    }
+
+    .modal-content {
+        background-color: #fff;
+        /* White background */
+        padding: 30px;
+        border-radius: 15px;
+        /* Rounded corners */
+        width: 50%;
+        max-width: 400px;
+        position: relative;
+        /* For positioning close button */
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        /* Box shadow for depth */
+        animation: slideIn 0.5s ease forwards;
+        /* Slide-in animation */
+    }
+
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 1.8rem;
+        color: #333;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        /* Hover effect on close button */
+    }
+
+    .close:hover {
+        color: #ff6347;
+        /* Change color on hover */
+    }
+
+    h3 {
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+        color: #333;
+    }
+
+    p {
+        font-size: 1.2rem;
+        color: #555;
+    }
+
+    input[type="text"] {
+        width: 80%;
+        padding: 12px;
+        margin: 20px 0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border 0.3s ease;
+        /* Smooth focus effect */
+    }
+
+    input[type="text"]:focus {
+        border: 1px solid #00bfff;
+        /* Change border color on focus */
+        outline: none;
+    }
+
+    button {
+        background-color: #00bfff;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        /* Hover and click animations */
+    }
+
+    button:hover {
+        background-color: #007acc;
+    }
+
+    button:active {
+        transform: scale(0.98);
+        /* Click effect */
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-50px);
+            /* Slide from above */
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Media Query for mobile responsiveness */
+    @media (max-width: 600px) {
+        .modal-content {
+            width: 90%;
+            padding: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+        }
+    }
+</style>
+
+<body>
+    <div>
+        <header>
+            <h1>Personal Book Library</h1>
+            <div class="search-container">
+                <input type="text" id="search" placeholder="Search books by title..." oninput="searchBooks()">
+            </div>
+        </header>
+
+        <section class="add-book">
+            <h2>Add a Book</h2>
+            <form id="addBookForm" onsubmit="addBook(event)">
+                <input type="text" id="bookTitle" placeholder="Book Title" required>
+                <input type="text" id="bookAuthor" placeholder="Book Author" required>
+                <select id="category">
+                    <option value="Fiction">Fiction</option>
+                    <option value="Non-Fiction">Non-Fiction</option>
+                    <option value="Science">Science</option>
+                    <option value="History">History</option>
+                </select>
+                <button type="submit">Add Book</button>
+            </form>
+        </section>
+
+        <section class="book-list">
+            <h2>Your Books</h2>
+            <div id="booksContainer"></div>
+        </section>
+
+        <section class="borrowing-history">
+            <h2>Borrowing History</h2>
+            <div id="historyContainer"></div>
+        </section>
+
+        <!-- Modal for borrowing book with student ID input -->
+        <div id="borrowModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeBorrowModal()">&times;</span>
+                <h3>Borrow Book</h3>
+                <p id="modalBookTitle"></p>
+                <input type="text" id="studentId" placeholder="Enter Student ID" required>
+                <button onclick="confirmBorrow()">Confirm Borrow</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let books = [];
+        let history = [];
+        let currentBookIndex = null;
+
+        // Load books and history from localStorage on page load
+        window.onload = function () {
+            loadBooksFromStorage();
+            loadHistoryFromStorage();
+            displayBooks();
+            displayHistory();
+            closeBorrowModal(); // Close modal on page load
+        };
+
+        function addBook(event) {
+            event.preventDefault();
+
+            const bookTitle = document.getElementById("bookTitle").value;
+            const bookAuthor = document.getElementById("bookAuthor").value;
+            const category = document.getElementById("category").value;
+
+            const book = { title: bookTitle, author: bookAuthor, category: category, borrowed: false, studentId: null, borrowedDate: null };
+            books.push(book);
+
+            document.getElementById("addBookForm").reset();
+
+            // Save books to localStorage after adding
+            saveBooksToStorage();
+
+            displayBooks();
+        }
+
+        function displayBooks() {
+            const booksContainer = document.getElementById("booksContainer");
+            booksContainer.innerHTML = "";
+
+            if (books.length === 0) {
+                booksContainer.innerHTML = "<p>No books added yet.</p>";
+                return;
+            }
+
+            books.forEach((book, index) => {
+                const bookItem = document.createElement("div");
+                bookItem.className = "book-item";
+
+                bookItem.innerHTML = `
+      <div class="details">
+        <strong>${book.title}</strong> by ${book.author} (${book.category})
+        <p>${book.borrowed ? `Borrowed by ID: ${book.studentId} on ${book.borrowedDate.toLocaleDateString()}` : 'Available'}</p>
+      </div>
+      <button class="borrow-button" onclick="openBorrowModal(${index})">${book.borrowed ? 'Return' : 'Borrow'}</button>
+    `;
+
+                booksContainer.appendChild(bookItem);
+            });
+        }
+
+        // Modal functionality
+        function openBorrowModal(index) {
+            if (books.length === 0) {
+                alert("Please add a book first.");
+                return;
+            }
+            currentBookIndex = index;
+            const book = books[index];
+            document.getElementById("modalBookTitle").innerText = `Borrowing: ${book.title}`;
+            document.getElementById("borrowModal").style.display = "block";
+        }
+
+        function closeBorrowModal() {
+            document.getElementById("borrowModal").style.display = "none";
+        }
+
+        function confirmBorrow() {
+            const studentId = document.getElementById("studentId").value;
+
+            if (studentId.trim() === "") {
+                alert("Please enter a valid student ID.");
+                return;
+            }
+
+            const book = books[currentBookIndex];
+
+            if (!book.borrowed) {
+                // Borrowing the book
+                book.borrowed = true;
+                book.studentId = studentId;
+                book.borrowedDate = new Date();
+                history.push({ title: book.title, studentId: studentId, borrowedDate: book.borrowedDate });
+            } else {
+                // Returning the book
+                book.borrowed = false;
+                book.studentId = null;
+                book.borrowedDate = null;
+                alert("Thank you, and welcome again!");
+            }
+
+            document.getElementById("studentId").value = ""; // Clear student ID input
+            closeBorrowModal();
+
+            // Save updated books and history to localStorage
+            saveBooksToStorage();
+            saveHistoryToStorage();
+
+            displayBooks();
+            displayHistory();
+        }
+
+        function displayHistory() {
+            const historyContainer = document.getElementById("historyContainer");
+            historyContainer.innerHTML = "";
+
+            if (history.length === 0) {
+                historyContainer.innerHTML = "<p>No borrowing history available.</p>";
+                return;
+            }
+
+            history.forEach(entry => {
+                const historyItem = document.createElement("div");
+                historyItem.className = "history-item";
+
+                historyItem.innerHTML = `${entry.title} borrowed by Student ID: ${entry.studentId} on ${entry.borrowedDate.toLocaleDateString()}`;
+
+                historyContainer.appendChild(historyItem);
+            });
+        }
+
+        // Save books to localStorage
+        function saveBooksToStorage() {
+            localStorage.setItem("books", JSON.stringify(books));
+        }
+
+        // Load books from localStorage
+        function loadBooksFromStorage() {
+            const storedBooks = localStorage.getItem("books");
+            if (storedBooks) {
+                books = JSON.parse(storedBooks);
+            }
+        }
+
+        // Save history to localStorage
+        function saveHistoryToStorage() {
+            localStorage.setItem("history", JSON.stringify(history));
+        }
+
+        // Load history from localStorage
+        function loadHistoryFromStorage() {
+            const storedHistory = localStorage.getItem("history");
+            if (storedHistory) {
+                history = JSON.parse(storedHistory);
+            }
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>
